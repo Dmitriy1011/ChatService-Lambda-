@@ -31,6 +31,7 @@ object WallService {
 
     fun getChats(): MutableCollection<Chat> {
         val chatsList = mutableListOf<Chat>()
+
         for (chat in chats) {
             if(messages.isNotEmpty()) {
                 chatsList.add(chat)
@@ -52,44 +53,66 @@ object WallService {
         throw NoUnreadChatsException("You have not unread chats")
     }
 
+
+
+
+
     fun deleteChat(chatId: Int): Boolean {
-        for (chat in chats) {
-            if (chat.id == chatId) {
-                chats.remove(chat)
-                return true
-            }
-        }
-        return false
+
+        val returnChat = chats.filter { it.id == chatId }
+        chats.remove(returnChat.get(0))
+        return true
+
+//        for (chat in chats) {
+//            if (chat.id == chatId) {
+//                chats.remove(chat)
+//                return true
+//            }
+//        }
+//        return false
     }
+
+
+
 
     private fun createMessage(message: Message): Int {
         messages.add(message)
         return message.id
     }
 
+
+
     fun updateMessage(messageId: Int, text: String): Int {
 
         val returnMsg = messages.filter { it.id == messageId }
+        returnMsg.get(0).text = text
+        return 1
 
-        returnMsg.forEach { it.text == text }
+////        for (message in messages) {
+////            if (message.id == messageId) {
+////                message.text = text
+////                return 1
+////            }
+////        }
+//        return -1
+    }
+
+
+
+
+    fun deleteMessage(messageId: Int): Boolean {
+
+        val returnMsg = messages.filter { it.id == messageId }
+        messages.remove(returnMsg.get(0))
+        return true
 
 //        for (message in messages) {
 //            if (message.id == messageId) {
-//                message.text = text
-//                return 1
+//                messages.remove(message)
+//                return true
 //            }
 //        }
-        return -1
-    }
-
-    fun deleteMessage(messageId: Int): Boolean {
-        for (message in messages) {
-            if (message.id == messageId) {
-                messages.remove(message)
-                return true
-            }
-        }
-        return false
+//        return false
     }
 
 //    fun getChatMessages(chatId: Int): MutableCollection<Chat> {
