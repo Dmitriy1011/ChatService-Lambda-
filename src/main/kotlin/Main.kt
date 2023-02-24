@@ -7,7 +7,7 @@ class Message(
     id: Int,
     isRead: Boolean,
     var text: String,
-    var type: Boolean
+    var isIncome: Boolean
 ): Chat(id, isRead)
 
 
@@ -49,7 +49,15 @@ object WallService {
 
 
     fun getUnreadChatsCount(): Int {
-        return chats.count { it.isRead }
+
+        val nonReadMsgsFilterIsRead = messages.filter { !it.isRead }
+        val nonReadMessagesFilterIsIncome = nonReadMsgsFilterIsRead.filter { it.isIncome }
+
+        if(nonReadMessagesFilterIsIncome.isNotEmpty()) {
+            return chats.count()
+        }
+
+        throw NoUnreadChatsException("Нет непрочитанных чатов")
     }
 
 
