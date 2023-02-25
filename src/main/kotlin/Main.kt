@@ -15,15 +15,17 @@ object WallService {
 
     private val chats = mutableListOf<Chat>()
     private val messages = mutableListOf<Message>()
+    private var chatPrivateId = 0;
 
     class WriteSomethingToBeginChatException(message: String) : RuntimeException(message)
     class NoMessagesException(message: String) : RuntimeException(message)
     class NoUnreadChatsException(message: String) : RuntimeException(message)
 
 
-    fun createChat(chat: Chat, message: Message): Int {
+    fun createChat(message: Message): Int {
 
         if (message == messages.first()) {
+            val chat = Chat(id = chatPrivateId++, false)
             chats.add(chat)
             return chat.id
         }
