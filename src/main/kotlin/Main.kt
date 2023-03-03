@@ -81,37 +81,31 @@ object WallService {
 
 
     fun createMessage(chatId: Int, text: String, isRead: Boolean, isIncome: Boolean): Message {
-
-        val neededChat = chats.find { it.id == chatId }
-
         val message = Message(id = messagePrivateId++, isRead, text, isIncome)
-
-        neededChat?.messages?.add(message)
         println(message.text)
         return message
     }
 
 
 
-    fun updateMessage(chatId: Int, messageId: Int, text: String): Message {
+    fun updateMessage(chatId: Int, messageId: Int, text: String): Int {
 
         val neededChat = chats.find { it.id == chatId }
 
         val msg = neededChat?.messages?.find { it.id == messageId }
         msg?.text = text
-        return msg?
+        return 1
     }
 
 
 
-    fun deleteMessage(chatId: Int, messageId: Int): Message {
+    fun deleteMessage(chatId: Int, messageId: Int): Boolean {
 
         val neededChat = chats.find { it.id == chatId }
 
         val msg = neededChat?.messages?.find { it.id == messageId }
         neededChat?.messages?.remove(msg)
-
-        return msg
+        return true
     }
 
 
