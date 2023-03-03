@@ -1,6 +1,7 @@
 open class Chat(
     val id: Int,
-    val isRead: Boolean
+    var isRead: Boolean,
+    val messages: MutableCollection<Message>
 )
 
 class Message(
@@ -8,26 +9,34 @@ class Message(
     isRead: Boolean,
     var text: String,
     var isIncome: Boolean
-): Chat(id, isRead)
+): Chat(id, isRead, messages = mutableListOf())
 
 
 object WallService {
 
     private val chats = mutableListOf<Chat>()
-    private val messages = mutableListOf<Message>()
     private var chatPrivateId = 0;
+    private var messagePrivateId = 0;
 
     class WriteSomethingToBeginChatException(message: String) : RuntimeException(message)
     class NoMessagesException(message: String) : RuntimeException(message)
     class NoUnreadChatsException(message: String) : RuntimeException(message)
 
 
-    fun createChat(message: Message): Int {
 
-        if (message == messages.first()) {
-            val chat = Chat(id = chatPrivateId++, false)
+
+    fun createChat(message: Message): Chat {
+
+        println(message.id)
+
+        val messagesCollection = mutableListOf<Message>()
+
+        if (message.id == 0) {
+            messagesCollection.add(message)
+            val chat = Chat(id = chatPrivateId++, false, messages = messagesCollection)
             chats.add(chat)
-            return chat.id
+            println(chats)
+            return chat
         }
 
         throw WriteSomethingToBeginChatException("Write something to begin chat")
@@ -36,14 +45,11 @@ object WallService {
 
     fun getChats(): List<Chat> {
 
-        val lastMsg = messages.last()
+        val getChats = chats.filter { it.messages.last() != null }
 
-        val isContains = chats.contains(lastMsg)
-
-        val chatsList = chats.filter { isContains }
-
-        if (isContains) {
-            return chatsList
+        if (getChats.isNotEmpty()) {
+            println(getChats)
+            return getChats
         }
 
         throw NoMessagesException("Нет сообщений")
@@ -52,19 +58,21 @@ object WallService {
 
     fun getUnreadChatsCount(): Int {
 
-        val nonReadMsgsFilterIsRead = messages.filter { !it.isRead }
-        val nonReadMessagesFilterIsIncome = nonReadMsgsFilterIsRead.filter { it.isIncome }
+        val findNonReadChats = chats.filter { it.messages.filter { message -> !message.isRead } .isNotEmpty() }
 
-        if(nonReadMessagesFilterIsIncome.isNotEmpty()) {
-            return chats.count()
+        val findNonReadChatsIsIncome = findNonReadChats.filter { it.messages.filter { message -> !message.isIncome  } .isNotEmpty()}
+
+        if(findNonReadChatsIsIncome.isNotEmpty()) {
+            println(findNonReadChatsIsIncome.count())
+            return findNonReadChatsIsIncome.count()
         }
+
 
         throw NoUnreadChatsException("Нет непрочитанных чатов")
     }
 
 
     fun deleteChat(chatId: Int): Boolean {
-
         val chat = chats.find { it.id == chatId }
         chats.remove(chat)
         return true
@@ -72,34 +80,47 @@ object WallService {
 
 
 
-    private fun createMessage(message: Message): Int {
-        messages.add(message)
-        return message.id
+    fun createMessage(chatId: Int, text: String, isRead: Boolean, isIncome: Boolean): Message {
+
+        val neededChat = chats.find { it.id == chatId }
+
+        val message = Message(id = messagePrivateId++, isRead, text, isIncome)
+
+        neededChat?.messages?.add(message)
+        println(message.text)
+        return message
     }
 
 
 
-    fun updateMessage(messageId: Int, text: String): Int {
-        val msg = messages.find { it.id == messageId }
+    fun updateMessage(chatId: Int, messageId: Int, text: String): Message {
+
+        val neededChat = chats.find { it.id == chatId }
+
+        val msg = neededChat?.messages?.find { it.id == messageId }
         msg?.text = text
-        return 1
+        return msg?
     }
 
 
 
-    fun deleteMessage(messageId: Int): Boolean {
-        val msg = messages.find { it.id == messageId }
-        messages.remove(msg)
-        return true
+    fun deleteMessage(chatId: Int, messageId: Int): Message {
+
+        val neededChat = chats.find { it.id == chatId }
+
+        val msg = neededChat?.messages?.find { it.id == messageId }
+        neededChat?.messages?.remove(msg)
+
+        return msg
     }
 
 
-//    fun getChatMessages(chatId: Int, lastMsgId: Int, msgCount: Int): List<Message> {
-//        val messagesList = mutableListOf<Message>()
-//        val chat = chats.find {it.id == chatId}
-//
-//        return messagesList
-//    }
+    fun getChatMessages(chatId: Int, lastMsgId: Int, msgCount: Int): List<Message>? {
+        val earlierMessages = chats.find { it.id == chatId } ?.messages?.take(lastMsgId)
+        val messagesWithCount = earlierMessages?.takeLast(msgCount)
+        messagesWithCount?.forEach { it.isRead = true}
+        return messagesWithCount
+    }
 }
 
 fun main() {
