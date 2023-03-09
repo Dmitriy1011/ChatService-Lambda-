@@ -19,10 +19,10 @@ class ChatServiceTest {
         println(ChatService.getChatsWithNonReadMessage())
     }
 
-//    @Test
-//    fun getChatsWithLastMessage() {
-//        println(ChatService.getChatsWithLastMessage())
-//    }
+    @Test
+    fun getChats() {
+        println(ChatService.getChats())
+    }
 
     @Test
     fun getLastMessages() {
@@ -40,10 +40,10 @@ class ChatServiceTest {
         ChatService.printChats()
     }
 
-    @Test
-    fun deleteChat() {
-        ChatService.deleteChat(1)
-        ChatService.printChats()
-    }
+//    @Test
+//    fun deleteChat() {
+//        ChatService.deleteChat(1)
+//        ChatService.printChats()
+//    }
 
 }
